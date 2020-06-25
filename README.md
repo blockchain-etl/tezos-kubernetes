@@ -88,3 +88,5 @@ $ helm install tezos-0 -f values.yaml charts/tezos
 
 > **Tip**: You can use the default [values.yaml](charts/tezos/values.yaml)
 
+Check a [separate file](ops.md) for more details about additional troubleshooting.
+
