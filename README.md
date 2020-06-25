@@ -1,4 +1,4 @@
-# Tezos Kubernetes
+# Tezos Node in Kubernetes
 
 [Tezos](https://tezos.com) is a distributed consensus platform with meta-consensus capability. Tezos not only comes 
 to consensus about the state of its ledger, like Bitcoin or Ethereum.
