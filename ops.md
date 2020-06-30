@@ -12,15 +12,15 @@ kubectl get pod
 ```
 Check pod logs (`-f` to follow)
 ```bash
-kubectl logs -f tezos-0-0 --tail=10
+kubectl logs -f tezos-0 --tail=10
 ```
 Check pod info to troubleshoot startup problems, liveness check problems, etc:
 ```bash
-kubectl describe pod tezos-0-0
+kubectl describe pod tezos-0
 ```
 Restart pod if hung
 ```bash
-kubectl delete pod tezos-0-0
+kubectl delete pod tezos-0
 ```
 Check allocated disk size 
 ```bash
@@ -28,7 +28,7 @@ kubectl get pvc
 ``` 
 Shell exec to container to check/troubleshoot from inside
 ```bash
-kubectl exec -it tezos-0-0 sh
+kubectl exec -it tezos-0 sh
 ``` 
 
 ### Upgrade cryptonode version 
@@ -40,28 +40,28 @@ image:
   repository: tezos/tezos
   tag: v8-release
 ```
-* upgrade Tezos helm release in the cluster, we use release named `tezos-0` in example below
+* upgrade Tezos helm release in the cluster, we use release named `tezos` in example below
 ```bash
 cd tezos-kubernetes
-helm upgrade tezos-0 charts/tezos/ --reuse-values --force --atomic --values values-dev.yaml
+helm upgrade tezos charts/tezos/ --reuse-values --force --atomic --values values-dev.yaml
 ```
 
 ### Snapshot disk with blockchain
-Let's assume you need to snapshot disk from pod `tezos-0-0`. First we need to find what disk is actually used by this pod
+Let's assume you need to snapshot disk from pod `tezos-0`. First we need to find what disk is actually used by this pod
 ```bash
-kubectl describe pod tezos-0-0
+kubectl describe pod tezos-0
 ```
 Check output for Volumes, my case is
 ```yaml
 Volumes:
   tezos-pvc:
     Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
-    ClaimName:  tezos-pvc-tezos-0-0
+    ClaimName:  tezos-pvc-tezos-0
     ReadOnly:   false
 ```
-We get `ClaimName: tezos-pvc-tezos-0-0`, now we need to find corresponding `PersistentVolume`:
+We get `ClaimName: tezos-pvc-tezos-0`, now we need to find corresponding `PersistentVolume`:
 ```bash
-kubectl describe pvc tezos-pvc-tezos-0-0
+kubectl describe pvc tezos-pvc-tezos-0
 ``` 
 Check output for Volumes, my case is
 ```yaml
@@ -80,19 +80,19 @@ Source:
 We get `gke-tezos-node-1-f9835-pvc-b2148859-fb11-4513-afa1-fd9f5c8c4d82`, that's the name of disk we need to snapshot.
 You may use [official doc](https://cloud.google.com/compute/docs/disks/create-snapshots) to create snapshot, here is quick example command to do so
 ```bash
-gcloud compute disks snapshot gke-tezos-node-1-f9835-pvc-b2148859-fb11-4513-afa1-fd9f5c8c4d82 --snapshot-names=tezos-0-snapshot
+gcloud compute disks snapshot gke-tezos-node-1-f9835-pvc-b2148859-fb11-4513-afa1-fd9f5c8c4d82 --snapshot-names=tezos-snapshot
 ```
 It may be better to stop blockchain node [to get consistent snapshot with high probability](https://cloud.google.com/compute/docs/disks/snapshot-best-practices). Here is how you can do it for example with Tezos node:
 ```bash
-kubectl scale statefulset tezos-0 --replicas=0
+kubectl scale statefulset tezos --replicas=0
 ``` 
 Wait 1 minute and then create the snapshot. Use following command to start node again:
 ```bash
-kubectl scale statefulset tezos-0 --replicas=1
+kubectl scale statefulset tezos --replicas=1
 ```
 You may need to convert your snapshot to an image, for example to share the image
 ```bash
-gcloud compute images create tezos-2020-06-01 --source-snapshot=tezos-0-snapshot
+gcloud compute images create tezos-2020-06-01 --source-snapshot=tezos-snapshot
 ``` 
 ### Provision cryptonode with pre-existing image
 When you have someone who shared pre-synced cryptonode disk image with you, you can create a new disk from this image and use it with your cryptonode, and here is how.
@@ -103,7 +103,7 @@ gcloud compute images create tezos-2020-06-01 --source-image=tezos-2020-06-01 --
 
 * just create SSD disk from the image, pay attention to zone, it must be the same as your GKE cluster 
 ```bash
-gcloud compute disks create tezos-0 --type pd-ssd --zone us-central1-a  --image=tezos-2020-06-01 --image-project=<SOURCE-PROJECT>
+gcloud compute disks create tezos --type pd-ssd --zone us-central1-a  --image=tezos-2020-06-01 --image-project=<SOURCE-PROJECT>
 ```
 
 #### Attaching disk to cryptonode pod
@@ -115,19 +115,19 @@ kubectl create -f pv.yaml
 ```
 * shutdown cryptonode:
 ```bash
-kubectl scale statefulset tezos-0 --replicas=0
+kubectl scale statefulset tezos --replicas=0
 ``` 
 give it some time to shutdown, you can monitor it with `kubectl get pod -w` usually
 
-* replace existing PVC by a copy with another disk name `tezos-0`, I use `tezos-pvc-0` PVC in the example below:
+* replace existing PVC by a copy with another disk name `tezos`, I use `tezos-pvc-0` PVC in the example below:
 ```bash
 # backup just in case
-kubectl get pvc tezos-pvc-0 -o yaml > tezos-pvc-0.yaml 
-kubectl get pvc tezos-pvc-0 -o json|jq '.spec.volumeName="tezos-0"'| kubectl replace --force -f -
+kubectl get pvc tezos-pvc-tezos-0 -o yaml > tezos-pvc-0.yaml 
+kubectl get pvc tezos-pvc-tezos-0 -o json|jq '.spec.volumeName="tezos-0"'| kubectl replace --force -f -
 ```
 * start cryptonode up and check logs
 ```bash
-kubectl scale statefulset tezos-0 --replicas=1
+kubectl scale statefulset tezos --replicas=1
 kubectl get pod -w
-kubectl logs -f tezos-0-0
+kubectl logs -f tezos-0
 ``` 

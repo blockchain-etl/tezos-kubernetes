@@ -13,14 +13,15 @@ the [Helm](https://helm.sh) package manager. Docker image was taken from
 ## Prerequisites
 
 - Kubernetes 1.8+
-- Helm 3+
+- Helm 2.16
 - PV provisioner support in the underlying infrastructure
 - [gcloud](https://cloud.google.com/sdk/install)
 
 ## Creating GKE Kubernetes Cluster
 
 ```bash
-CLUSTER_NAME=tezos-node-1
+CLUSTER_INDEX=0
+CLUSTER_NAME=tezos-node-${CLUSTER_INDEX} && echo "Cluster name is ${CLUSTER_NAME}"
 MASTER_ZONE=us-central1-a
 
 gcloud container clusters create $CLUSTER_NAME \
@@ -35,14 +36,16 @@ gcloud container clusters create $CLUSTER_NAME \
 gcloud container clusters get-credentials $CLUSTER_NAME --zone=$MASTER_ZONE
 
 kubectl create -f storageclass-ssd.yaml 
+helm init
+bash patch-tiller.sh
 ```
 
 ## Installing the Chart
 
-To install the chart with the release name `tezos-0`:
+To install the chart with the release name `tezos`:
 
 ```bash
-$ helm install tezos-0 charts/tezos
+$ helm install --name tezos charts/tezos
 ```
 
 Follow the instructions in the output of the command to connect to Tezos RPC.
@@ -54,10 +57,10 @@ The [configuration](#configuration) section lists the parameters that can be con
 
 ## Uninstalling the Chart
 
-To uninstall/delete the `tezos-0` deployment:
+To uninstall/delete the `tezos` deployment:
 
 ```bash
-$ helm delete tezos-0
+$ helm delete tezos --purge
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -75,7 +78,7 @@ Parameter                       | Description                                   
 `service.p2pPort`               | P2P port                                          | `9732`
 `persistence.enabled`           | Create a volume to store data                     | `true`
 `persistence.accessMode`        | ReadWriteOnce or ReadOnly                         | `ReadWriteOnce`
-`persistence.size`              | Size of persistent volume claim                   | `100Gi`
+`persistence.size`              | Size of persistent volume claim                   | `200Gi`
 `resources`                     | CPU/Memory resource requests/limits               | `{}`
 `terminationGracePeriodSeconds` | Wait time before forcefully terminating container | `30`
 
@@ -83,7 +86,7 @@ Parameter                       | Description                                   
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-$ helm install tezos-0 -f values.yaml charts/tezos
+$ helm install --name tezos -f values.yaml charts/tezos
 ```
 
 > **Tip**: You can use the default [values.yaml](charts/tezos/values.yaml)

@@ -24,7 +24,7 @@ persistence:
   enabled: true
   storageClass: "ssd"
   accessMode: ReadWriteOnce
-  size: "100Gi"
+  size: "200Gi"
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

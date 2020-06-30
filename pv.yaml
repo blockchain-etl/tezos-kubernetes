@@ -9,16 +9,16 @@ metadata:
   - kubernetes.io/pv-protection
   labels:
     failure-domain.beta.kubernetes.io/region: us-central1
-    failure-domain.beta.kubernetes.io/zone: us-central1-c
-  name: parity-0
+    failure-domain.beta.kubernetes.io/zone: us-central1-a
+  name: tezos-0
 spec:
   accessModes:
   - ReadWriteOnce
   capacity:
-    storage: 5000Gi
+    storage: 200Gi
   gcePersistentDisk:
     fsType: ext4
-    pdName: parity-1
+    pdName: tezos-0
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -26,7 +26,7 @@ spec:
         - key: failure-domain.beta.kubernetes.io/zone
           operator: In
           values:
-          - us-central1-c
+          - us-central1-a
         - key: failure-domain.beta.kubernetes.io/region
           operator: In
           values:
