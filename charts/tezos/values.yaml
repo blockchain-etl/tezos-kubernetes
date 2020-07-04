@@ -10,14 +10,19 @@ image:
 service:
   rpcPortName: jsonrpc
   rpcPort: "8732"
-  p2pPort: "9732"
+  # port should be inside k8s node ports range
+  p2pPort: "30000"
   p2pPortName: p2p
 
 externalLB: false
 externalLBIP: ""
 externalLBSourceRanges: {}
+#  - 203.0.113.2/32
+#  - 203.0.113.3/32
 
-internalLB: true
+externalLBp2p: false
+externalLBp2pIP: ""
+internalLB: false
 internalLBIP: ""
 
 persistence:
