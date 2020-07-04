@@ -17,12 +17,10 @@ service:
 externalLB: false
 externalLBIP: ""
 externalLBSourceRanges: {}
-#  - 203.0.113.2/32
-#  - 203.0.113.3/32
 
 externalLBp2p: false
 externalLBp2pIP: ""
-internalLB: false
+internalLB: true
 internalLBIP: ""
 
 persistence:
