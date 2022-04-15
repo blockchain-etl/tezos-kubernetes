@@ -72,7 +72,7 @@ The following table lists the configurable parameters of the Tezos chart and the
 Parameter                       | Description                                       | Default
 ------------------------------- | ------------------------------------------------- | ----------------------------------------------------------
 `image.repository`              | Image source repository name                      | `tezos/tezos`
-`image.tag`                     | `tezos` release tag.                              | `v7-release`
+`image.tag`                     | `tezos` release tag.                              | `latest-release`
 `image.pullPolicy`              | Image pull policy                                 | `IfNotPresent`
 `service.rpcPort`               | RPC port                                          | `8732`
 `service.p2pPort`               | P2P port                                          | `9732`

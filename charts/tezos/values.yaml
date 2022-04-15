@@ -4,7 +4,7 @@
 terminationGracePeriodSeconds: 30
 image:
   repository: tezos/tezos
-  tag: v7-release
+  tag: latest-release
   pullPolicy: Always
 
 service:
